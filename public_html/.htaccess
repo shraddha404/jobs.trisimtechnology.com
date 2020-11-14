@@ -1,0 +1,15 @@
+RewriteEngine On
+#RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule (.*) index.php/$1
+#AuthType Basic
+#AuthName "Password Protected Area"
+#AuthUserFile /jobs.trisimtechnology.com/public_html/.htpasswd
+#Require valid-user
+
+<IfModule mod_php5.c>    
+    #Session timeout    
+    php_value session.cookie_lifetime 300    
+    php_value session.gc_maxlifetime 300    
+</IfModule>
