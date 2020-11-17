@@ -1192,7 +1192,7 @@
                    $user_type_id = $v['id'];
                }
            }
-   $location=trim($data['location']);
+           $location=trim($data['location']);
            $qualification_id_10th = $this->getQualificationidbyNames('10th');
            $qualification_id_12th = $this->getQualificationidbyNames('12th');
            $qualification_id_be = $this->getQualificationidbyNames('BE');
@@ -2584,7 +2584,50 @@
            }
            return true;
        }
+       function addResumeRemark($data) { 
+           try {    //Insert basic details
+                //$stmt = $this->pdo->prepare("INSERT INTO `resume_remark`(`user_id`, `remark`) VALUES (?,?) ");
+               $stmt = $this->pdo->prepare("INSERT INTO `resume_remark`(`user_id`, `remark`) VALUES (:user_id,:remark) ON DUPLICATE KEY UPDATE user_id=:user_id1,remark=:remark1");
+                
+                //return "INSERT INTO `resume_remark`(`user_id`, `remark`) VALUES (?,?)";exit;
+              // $stmt->execute(array($data['user_id'],$data['remark']));
+               $stmt->execute( array(':user_id' => $data['user_id'], ':remark' => $data['remark'],':user_id1' => $data['user_id'], ':remark1' => $data['remark']));
+  
+               $id = $this->pdo->lastInsertId();
+           } catch (PDOException $e) {
    
+   
+               $this->setError('Record Not Inserted');
+   
+   
+               return false;
+           }
+           return $id;
+       }
+        function getUserResumeRemark($user_id) {
+           $select = $this->pdo->prepare("SELECT * FROM resume_remark WHERE user_id=?");
+           $select->execute(array($user_id));
+   
+           $user_details = $select->fetchAll(PDO::FETCH_ASSOC);
+   
+           return $user_details;
+       }
+   function UpdateResumeRemark($data) {
+   
+   
+           try {    //Insert basic details
+               $stmt = $this->pdo->prepare("UPDATE resume_remark SET remark=? WHERE user_id=?");
+               $stmt->execute(array($data['remark'], $data['user_id']));
+           } catch (PDOException $e) {
+   
+   
+               $this->setError('Record Not Inserted');
+   
+   
+               return false;
+           }
+           return $id;
+       }
    ################################################
    }
    

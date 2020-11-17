@@ -28,6 +28,94 @@ $qualifications = $u->getQualifications();
 
 include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
 ?>
+<script> 
+function setUserId(UserId){
+    $("#user_id").val(UserId);
+    $('#modaladdRemark').modal('show');
+   
+}
+
+function submitRemark() {
+jQuery.ajax({
+  type: "POST",
+  url: "add_remark.php",
+  data: jQuery('form#addRemark').serialize(),
+  cache: false,
+  success: function (data) {
+            jQuery.noConflict();
+            jQuery("#modaladdRemark").modal('hide');
+            location.reload();
+        },
+        error: function () {
+            alert("Error");
+        }
+});
+}
+function getRemark(id) { 
+        $.ajax({
+            url: "get_remark.php",
+            method: "POST",
+            data: {id: id},
+            dataType: "json",
+            success: function (data) {
+                $('#remark').val(data.remark);
+                $('#user_id').val(data.user_id);
+                $('.headline').text("Edit Remark");
+                $('#modaladdRemark').modal('show');
+            }
+        });
+}
+$(document).ready(function(){
+     $("#addRemark").submit(function (event) {
+        jQuery.noConflict();
+        submitRemark();
+        event.preventDefault();
+        return false;
+    });
+});
+
+
+
+    </script>
+<style>
+.tooltip1 {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip1 .tooltiptext1 {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip1 .tooltiptext1::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip1:hover .tooltiptext1 {
+  visibility: visible;
+  opacity: 1;
+}
+</style>
 <div class="container">
     <br/><h2 align="center">Manage Candidate</h2>
    
@@ -166,12 +254,14 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                         <th class="text-center whitetheadtr" >Experience</th>
                         <th class="text-center whitetheadtr" >PhD Score</th>
                         <th class="text-center whitetheadtr" >Master's CGPA</th>
-                        <!--th class="text-center">GATE Domain/Score/AIR/YOP</th-->
+                        <th class="text-center">GATE</th>
+                        <!--th class="text-center">GATE Domain/Score/AIR/YOP</th>-->
                         <th class="text-center whitetheadtr" >Domain</th>
-                        <th class="text-center whitetheadtr" >Bachelor's CGPA</th>
-                        <!--th class="text-center">12th Marks/Percentage/PCM Group Marks</th>
-                        <th class="text-center">10th Marks</th-->
-                       <th class="text-center whitetheadtr"  data-filter="false">Action</th>
+                        <th class="text-center whitetheadtr" >Bachelor's CGPA</th>                                      <!--th class="text-center"> 12th Marks/Percentage/PCM Group Marks</th>-->
+                        <th class="text-center">12th</th>
+                        <!--th class="text-center">10th Marks</th-->
+                       <!--th class="text-center whitetheadtr"  data-filter="false">Action</th>-->
+                       <th class="text-center">Remarks</th>
                     </tr>
                 <tfoot>
 
@@ -208,7 +298,10 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             ?>
                             <tr class="lablewhite">
                                 <td class="lablewhite" align="center"><?php echo $user['id']; ?></td>
-                                <td class="lablewhite" align="center"><?php echo $user['first_name'] . " " . $user['middle_name'] . " " . $user['last_name']; ?>
+                                <td class="lablewhite" align="center"> <div class="tooltip1"><a href="#"><?php echo $user['first_name'] . " " . $user['middle_name'] . " " . $user['last_name']; ?></a>
+  <span class="tooltiptext1"><a href="/my_profile.php?id=<?php echo $user['id']; ?>" rel="#overlay" title="View"><img src="/images/download.png" width="17"></a>  
+                                    <a href="?id=<?php echo $user['id']; ?>&oper=delete" rel="#overlay" title="Delete" onclick="return confirm('Are you sure you want to Delete?');"><img src="/images/rubbish-bin.png" width="17"></a></span>
+</div>
                                 </td>
 
                                 <td class="lablewhite" align="center" ><a href="#" data-toggle="tooltip"  title="<?php echo $user['email']; ?>">
@@ -249,13 +342,13 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                     ?></td>
                                 <td class="lablewhite" align="center"><?php
                                     if ($user['gate_domain']) {
-                                        echo $user['gate_domain'];
+                                        echo $user['gate_domain']." ";
                                     }
-                                    /*if ($user['gate_yop']) {
+                                    if ($user['gate_yop']) {
                                         echo "GATE Score:" . $user['gate_marks'] . " " . "AIR:" . $user['gate_air'] . " " . "YOP:" . $user['gate_yop'];
                                     } else {
                                         echo "--";
-                                    }*/
+                                    }
                                     ?></td>
                                 <td class="lablewhite" align="center"><?php
                                     if ($user['be_cgpa']) {
@@ -268,7 +361,7 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                                         echo "--";
                                     }
                                     ?></td>
-                                <!--td align="center"><?php
+                                <td align="center"><?php
                                     if ($user['xii_marks']) {
                                         echo "Marks:" . $user['xii_marks'] . " ";
                                     }
@@ -289,10 +382,16 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
                             }
                             ?></td-->
 
-                                <td class="lablewhite" align="center">
+                               <!-- <td class="lablewhite" align="center">
                                     <a href="/my_profile.php?id=<?php echo $user['id']; ?>" rel="#overlay" title="View"><img src="/images/download.png" width="17"></a> 
-                                    <!--a href="add_user.php?id=<?php echo $user['id']; ?>" rel="#overlay" title="Edit"><img src="/images/edit.png" width="17"></a--> 
+                                    <a href="add_user.php?id=<?php echo $user['id']; ?>" rel="#overlay" title="Edit"><img src="/images/edit.png" width="17"></a> 
                                     <a href="?id=<?php echo $user['id']; ?>&oper=delete" rel="#overlay" title="Delete" onclick="return confirm('Are you sure you want to Delete?');"><img src="/images/rubbish-bin.png" width="17"></a>
+                                </td>-->
+                                <td class="lablewhite" align="center"><?php $remark=$u->getUserResumeRemark($user['id']); If(!empty($remark)){?> 
+                                    <a href="#" class="classeditRemark" id="btneditRemark"  onclick="getRemark(<?php echo $user['id']; ?>);"><?php echo $remark[0]['remark']; ?></a>
+                                <?php } else {?>
+                                    <a href="#" class="classAddRemark"   id="btnaddRemark"  onclick="setUserId(<?php echo $user['id']; ?>);">Add Remark</a>
+                                     <?php }?>
                                 </td>
                             </tr>
     <?php
@@ -303,16 +402,50 @@ include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/header.php';
             </table>
         </div>
     </div>
+<div class="modal fade" id="modaladdRemark" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span> <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title headline" id="myModalLabel">Add Remark</h4>
+                
+            </div>
 
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p class="statusMsg"></p>
+                <form role="form" id="addRemark"  class="classaddRemark" method="post" action="">
+                    <div class="form-group">
+                        <label for="inputName" name="resume_remark">Remark<span class="mandatory">* </span></label>
+
+                        <textarea class="form-control"
+                                  id="remark" name="remark"  required /></textarea>
+                                  <input type="hidden" name="user_id" id="user_id">
+                       
+                    </div>
+
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">CLOSE</button>
+
+                        <input type="submit" value="SUBMIT" id="submitremark" name="submitremark" class="btn btn-primary submitBtn" >
+
+            </div>
+                    </form>
+        </div>				
+    </div>
+</div>
+</div>
 
 </div>
 
 <div class="clearfix"> </div>
-</div>
-</div>
+
 <br/>
-</div>
-</div>
-</div>
+
 
 <?php include_once $_SERVER['DOCUMENT_ROOT'] . '/includes/footer.php'; ?>
